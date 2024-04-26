@@ -42,12 +42,22 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
       drawInfo.canvasW,
       drawInfo.canvasH
     );
+    imgCurInfo.canvasTempCtx?.drawImage(
+      imgCurInfo.imgEle,
+      drawInfo.imgX,
+      drawInfo.imgY,
+      drawInfo.imgW,
+      drawInfo.imgH,
+      drawInfo.canvasX,
+      drawInfo.canvasY,
+      drawInfo.canvasW,
+      drawInfo.canvasH
+    );
+    console.log('比例相同，图片只需要缩放，图片内容可以全部填充')
     imgCurInfo.drawInfo = drawInfo;
   } else {
     //比例不同，填充局部图片，图片一部分不在裁剪框内，先将图片放大再裁剪某个区域(默认裁剪中间的位置)
-    console.log(
-      "图片比例不同，填充局部图片，图片一部分不在裁剪框内，先将图片放大再裁剪某个区域"
-    );
+    console.log('比例不同，填充局部图片，图片一部分不在裁剪框内，先将图片放大再裁剪某个区域(默认裁剪中间的位置)')
     let scaleX = boxWidth / imgWidth;
     let scaleY = boxHeight / imgHeight;
     let scale = Math.max(scaleX, scaleY);

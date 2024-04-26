@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="canvasOriginRef" ></canvas>
+  <canvas ref="canvasOriginRef" style="display: none;"></canvas>
   <canvas
     ref="canvasTempRef"
     class="canvas-temp"
@@ -46,7 +46,6 @@ const imgCurInfo = reactive<ImgCurInfo>({
 });
 
 const initCanvas = () => {
-  console.log("initCanvas");
   const { mode, boxInfo } = props;
   switch (mode) {
     case "fill":
@@ -57,7 +56,6 @@ const initCanvas = () => {
 const canvasOriginRef = ref(null);
 const canvasTempRef = ref(null);
 const init = () => {
-  console.log("inint");
   imgCurInfo.canvasCur = canvasOriginRef.value as HTMLCanvasElement;
   imgCurInfo.canvasCurCtx = imgCurInfo.canvasCur.getContext(
     "2d"
@@ -77,7 +75,19 @@ const init = () => {
     imgCurInfo.imgEle = img;
     imgCurInfo.imgInfo = imgInfo;
     initCanvas();
-  emits('ready', img, props.position)
+    const { ratio: boxRatio, basis: boxWidth } = boxInfo;
+  const boxHeight = boxWidth * boxRatio;
+    const canvasInfo = {
+    canvas: imgCurInfo.canvasCur,
+    canvasWidth: boxWidth,
+    canvasHeight: boxHeight,
+    cordinate:{ //tofix：这里传的有问题，不过现在暂时用不到
+      x:imgCurInfo.drawInfo.canvasX,
+      y:imgCurInfo.drawInfo.canvasY
+    },
+    imgEle:img
+  }
+  emits('ready', canvasInfo, props.position)
   };
   img.src = src;
   console.log("imgCurInfo", imgCurInfo);
@@ -114,7 +124,6 @@ const handleDragStart = (e: MouseEvent) => {
 };
 
 const handleDrag = (e: MouseEvent) => {
-  console.log('handleDrag', )
   if (dragCur.isDragging) {
     const endX = e.clientX;
     const endY = e.clientY;
@@ -152,14 +161,14 @@ const handleDrag = (e: MouseEvent) => {
   }
 };
 const handleDragEnd = () => {
-  // if(dragCur.basisX != 0 || dragCur.basisY != 0){
-    console.log('basis', dragCur.basisX)
-    imgCurInfo.drawInfo.canvasX = -dragCur.basisX;
+  imgCurInfo.drawInfo.canvasX = -dragCur.basisX;
   imgCurInfo.drawInfo.canvasY = -dragCur.basisY;
   
   const { ratio: boxRatio, basis: boxWidth } = boxInfo;
   const boxHeight = boxWidth * boxRatio;
-  imgCurInfo.canvasCurCtx?.drawImage(
+  
+  if(dragCur.basisX != 0 || dragCur.basisY != 0){
+    imgCurInfo.canvasCurCtx?.drawImage(
     imgCurInfo.canvasTemp,
     imgCurInfo.drawInfo.canvasX,
       0,
@@ -170,7 +179,6 @@ const handleDragEnd = () => {
       boxWidth,
       boxHeight
   )
-  // }
   const canvasInfo = {
     canvas: imgCurInfo.canvasCur,
     canvasWidth: boxWidth,
@@ -181,6 +189,7 @@ const handleDragEnd = () => {
     }
   }
   emits('move', canvasInfo, props.position)
+}
   Object.assign(dragCur, {
     startX: 0,
     startY: 0,

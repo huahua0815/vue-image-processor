@@ -72,7 +72,7 @@
     </div>
     <div class="img-result">
       <div class="img-preview">
-        <span>图片拼接预览</span>
+        <div>图片拼接预览</div>
        
         <canvas ref="canvasResultRef"></canvas>
       </div>
@@ -168,7 +168,6 @@ const canvasResultRef = ref(null)
 const handlePreview = ()=>{
   const canvas = canvasResultRef.value
   fillModePuzzle(boxTableData.value, canvas)
-  console.log('after canvasRes', canvas)
 }
 
 const handleDownload = ()=>{
@@ -176,22 +175,24 @@ const handleDownload = ()=>{
   let url = canvas.toDataURL('image/png')
   const a = document.createElement('a')
   document.body.appendChild(a)
-  a.download = 'test.png'
+  const time = new Date().getTime()
+  a.download = `puzzle_${time}.png`
   a.href = url
   a.click()
   document.body.removeChild(a)
 }
 
-const handleImgBoxCutReady = (imgInfo:any, position:any)=>{
+const handleImgBoxCutReady = (canvasInfo:any, position:any)=>{
   // console.log("handleImgBoxCutReady", imgInfo, position)
   const {row, column } = position
-  boxTableData.value[row][column].imgEle = imgInfo.imgEle
+  boxTableData.value[row][column].canvasInfo = canvasInfo
+  // console.log('boxTableData.value', row, column, boxTableData.value)
 }
 
 const handleImgBoxMove = (canvasInfo:any, position:any)=>{
   const {row, column } = position
   boxTableData.value[row][column].canvasInfo = canvasInfo
-  console.log('boxTableData.value', boxTableData.value)
+  // console.log('boxTableData.value', boxTableData.value)
 }
 </script>
 
@@ -215,7 +216,7 @@ const handleImgBoxMove = (canvasInfo:any, position:any)=>{
     border-right: 1px solid black;
     background-color: #fff;
     box-sizing: border-box;
-    // overflow: hidden;
+    overflow: hidden;
   }
 }
 
