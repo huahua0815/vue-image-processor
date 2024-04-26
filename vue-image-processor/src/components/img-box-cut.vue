@@ -120,7 +120,7 @@ const handleDragStart = (e: MouseEvent) => {
   dragCur.isDragging = true;
   dragCur.startX = e.clientX;
   dragCur.startY = e.clientY;
-  console.log("dragStart");
+  // console.log("dragStart");
 };
 
 const handleDrag = (e: MouseEvent) => {
@@ -202,10 +202,57 @@ const handleDragEnd = () => {
 };
 
 const handleScroll = (e:WheelEvent)=>{
+  //tofix:有问题
   const deltay = e.deltaY
-  console.log('deltay is', deltay, e)
-
+  console.log('deltay is', deltay)
+  const { width: imgWidth, height: imgHeight } = imgCurInfo.imgInfo;
+  if(deltay < 0){
+    //放大
+    let scale = Math.abs(Math.ceil(deltay / 8))
+    console.log('放大', 1 + scale)
+    let imgFinalWidth = imgWidth * (1 + scale)
+    let imgFinalHeight = imgHeight * (1 + scale)
+    imgCurInfo.canvasTempCtx?.clearRect(0, 0, imgCurInfo.canvasTemp?.width as number, imgCurInfo.canvasTemp?.height as number)
+    imgCurInfo.canvasTempCtx?.drawImage(
+      imgCurInfo.imgEle,
+      0,
+      0,
+      imgWidth,
+      imgHeight,
+      0,
+      0,
+      imgFinalWidth,
+      imgFinalHeight
+    );
+  }else{
+    //缩小
+    let scale = deltay / 100
+    console.log('缩小', 1 - scale)
+    let imgFinalWidth = imgWidth * (1 - scale)
+    let imgFinalHeight = imgHeight * (1 - scale)
+    imgCurInfo.canvasTempCtx?.clearRect(0, 0, imgCurInfo.canvasTemp?.width as number, imgCurInfo.canvasTemp?.height as number)
+    imgCurInfo.canvasTempCtx?.drawImage(
+      imgCurInfo.imgEle,
+      0,
+      0,
+      imgWidth,
+      imgHeight,
+      0,
+      0,
+      imgFinalWidth,
+      imgFinalHeight
+    );
+  }
 }
+
+const reset = ()=>{
+  imgCurInfo.canvasCurCtx?.clearRect(0, 0, imgCurInfo.canvasCur?.width as number, imgCurInfo.canvasCur?.height as number)
+  imgCurInfo.canvasTempCtx?.clearRect(0, 0, imgCurInfo.canvasTemp?.width as number, imgCurInfo.canvasTemp?.height as number)
+}
+
+defineExpose({
+  reset
+})
 
 onMounted(() => {
   window.addEventListener("mouseup", handleDragEnd);

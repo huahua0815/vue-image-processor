@@ -1,16 +1,38 @@
 <template>
   <div class="drag-wrap">
-    <div class="img-list">
-      <span> 图片选择列表 </span>
-      <div
-        class="img-drag"
-        v-for="(img, index) in imgList"
-        :key="img.src"
-        draggable="true"
-        :ref="`img-drag-${img.id}`"
-        @dragstart="handleDrag(index)"
-      >
-        <img :src="img.src" class="drag-img" alt="" />
+    <div class="area">
+      <div class="img-list">
+        <span> 图片选择列表 </span>
+        <div
+          class="img-drag"
+          v-for="(img, index) in imgList"
+          :key="img.src"
+          draggable="true"
+          :ref="`img-drag-${img.id}`"
+          @dragstart="handleDrag(index)"
+        >
+          <img :src="img.src" class="drag-img" alt="" />
+        </div>
+      </div>
+      <div class="img-template-generate">
+        <div>模版生成器</div>
+        <el-form size="small">
+          <el-form-item label="行数">
+              <el-input v-model="curInfo.templateNew.row" />
+            </el-form-item>
+            <el-form-item label="列数">
+              <el-input v-model="curInfo.templateNew.column" />
+            </el-form-item>
+            <el-form-item label="单元格宽度">
+              <el-input v-model="curInfo.templateNew.basis" />
+            </el-form-item>
+            <el-form-item label="单元格高/宽比例">
+              <el-input v-model="curInfo.templateNew.ratio" />
+            </el-form-item>
+            <el-form-item >
+              <el-button type="primary" size="small" @click="handleGenerateTemplate">生成</el-button>
+            </el-form-item>
+        </el-form>
       </div>
     </div>
     <span> 模版配置列表 </span>
@@ -28,6 +50,7 @@
         />
       </div>
     </div>
+
     <div class="img-operation">
       <div class="img-box-table-wrap">
         <span>图片拼接区</span>
@@ -43,13 +66,13 @@
                 @dragover="handleDragOver"
                 @drop="handleDrop(i, j)"
               >
-                <!-- <img  v-if="boxTableData[i][j].src" class="img-placeholder" :src="boxTableData[i][j].src" alt=""> -->
                 <imgBoxCut
                   :src="boxTableData[i][j].src"
-                   :boxInfo="imgBoxConfig"
+                  :boxInfo="imgBoxConfig"
                   :position="{ row: i, column: j }"
                   @ready="handleImgBoxCutReady"
                   @move="handleImgBoxMove"
+                  ref="imgBoxCutRef"
                 />
               </div>
             </div>
@@ -59,37 +82,51 @@
       <div class="img-box-config-wrap">
         <span>图片拼接配置</span>
         <div class="img-box-config">
-          <div class="img-box-config-item">
-            <span>规则单元格宽度:</span>
-            <input type="text" v-model="imgBoxConfig.basis" />
-          </div>
-          <div class="img-box-config-item">
-            <span>规则单元格高/宽比例:</span>
-            <input type="text" v-model="imgBoxConfig.ratio" />
-          </div>
+          <el-form>
+            <el-form-item label="规则单元格宽度">
+              <el-input v-model="imgBoxConfig.basis" />
+            </el-form-item>
+            <el-form-item label="规则单元格高/宽比例">
+              <el-input v-model="imgBoxConfig.ratio" />
+            </el-form-item>
+          </el-form>
         </div>
+      </div>
+      <div class="img-result-operation">
+        <el-button
+          class="mr-4"
+          type="primary"
+          :icon="View"
+          @click="handlePreview"
+          size="small"
+          >预览</el-button
+        >
+        <el-button
+          class="mr-4"
+          type="primary"
+          :icon="Download"
+          @click="handleDownload"
+          size="small"
+          >下载</el-button
+        >
       </div>
     </div>
     <div class="img-result">
       <div class="img-preview">
         <div>图片拼接预览</div>
-       
         <canvas ref="canvasResultRef"></canvas>
-      </div>
-      <div class="img-result-operatio">
-        <button @click="handlePreview">预览</button>
-        <button @click="handleDownload">下载</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, nextTick } from "vue";
 import imgBoxCut from "./img-box-cut.vue";
 import boxTemplate from "./box-template.vue";
 import { ImgTemplateBox } from "./type";
 import { fillModePuzzle } from "@/algorithm/puzzle.ts";
+import { Download, View } from "@element-plus/icons-vue";
 const imgList = ref([
   {
     id: 1,
@@ -111,6 +148,14 @@ const boxTemplateList = ref([
   { row: 2, column: 1, basis: 80, ratio: 1 / 2 },
 ]);
 
+const handleGenerateTemplate = () => {
+  const { row , column, basis, ratio} = curInfo.templateNew
+  boxTemplateList.value.push({
+    row: Number(row), column : Number(column), basis: Number(basis), ratio
+  })
+  console.log('22', boxTemplateList.value)
+}
+
 const imgBoxConfig = reactive<ImgTemplateBox>({
   row: 1,
   column: 3,
@@ -119,22 +164,27 @@ const imgBoxConfig = reactive<ImgTemplateBox>({
 });
 
 const boxTableData = ref([]);
-
-const generateBoxTableData = ()=>{
+const generateBoxTableData = () => {
   const tableData = [];
-for (let row = 0; row < imgBoxConfig.row; row++) {
-  const rowData = [];
-  for (let column = 0; column < imgBoxConfig.column; column++) {
-    rowData.push({ row, column, src: "", imgEle:null, canvasInfo:null });
+  for (let row = 0; row < imgBoxConfig.row; row++) {
+    const rowData = [];
+    for (let column = 0; column < imgBoxConfig.column; column++) {
+      rowData.push({ row, column, src: "", imgEle: null, canvasInfo: null });
+    }
+    tableData.push(rowData);
   }
-  tableData.push(rowData);
-}
-boxTableData.value = tableData
-}
+  boxTableData.value = tableData;
+};
 
 const curInfo = reactive({
   imgIndex: -1,
   boxCordinate: [-1, -1],
+  templateNew:{
+    row: 0,
+    column: 0,
+    basis: 0,
+    ratio: 1,
+  }
 });
 
 const handleDragOver = (e: Event) => {
@@ -149,51 +199,54 @@ const handleDrop = (i: number, j: number) => {
   boxTableData.value[i][j].src = imgList.value[curInfo.imgIndex].src;
 };
 
+const imgBoxCutRef = ref();
 const changeTemplate = (index: number) => {
+  imgBoxCutRef.value.forEach((refEl: any) => {
+    if (refEl) {
+      refEl.reset();
+    }
+  });
   imgBoxConfig.row = boxTemplateList.value[index].row;
   imgBoxConfig.column = boxTemplateList.value[index].column;
   imgBoxConfig.ratio = boxTemplateList.value[index].ratio;
-  generateBoxTableData()
+  generateBoxTableData();
 };
 
 const init = () => {
-  generateBoxTableData()
+  generateBoxTableData();
 };
 
-onMounted(()=>{
-  init()
+onMounted(() => {
+  init();
 });
 
-const canvasResultRef = ref(null)
-const handlePreview = ()=>{
-  const canvas = canvasResultRef.value
-  fillModePuzzle(boxTableData.value, canvas)
-}
+const canvasResultRef = ref(null);
+const handlePreview = () => {
+  const canvas = canvasResultRef.value;
+  fillModePuzzle(boxTableData.value, canvas);
+};
 
-const handleDownload = ()=>{
-  const canvas = canvasResultRef.value
-  let url = canvas.toDataURL('image/png')
-  const a = document.createElement('a')
-  document.body.appendChild(a)
-  const time = new Date().getTime()
-  a.download = `puzzle_${time}.png`
-  a.href = url
-  a.click()
-  document.body.removeChild(a)
-}
+const handleDownload = () => {
+  const canvas = canvasResultRef.value;
+  let url = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  document.body.appendChild(a);
+  const time = new Date().getTime();
+  a.download = `puzzle_${time}.png`;
+  a.href = url;
+  a.click();
+  document.body.removeChild(a);
+};
 
-const handleImgBoxCutReady = (canvasInfo:any, position:any)=>{
-  // console.log("handleImgBoxCutReady", imgInfo, position)
-  const {row, column } = position
-  boxTableData.value[row][column].canvasInfo = canvasInfo
-  // console.log('boxTableData.value', row, column, boxTableData.value)
-}
+const handleImgBoxCutReady = (canvasInfo: any, position: any) => {
+  const { row, column } = position;
+  boxTableData.value[row][column].canvasInfo = canvasInfo;
+};
 
-const handleImgBoxMove = (canvasInfo:any, position:any)=>{
-  const {row, column } = position
-  boxTableData.value[row][column].canvasInfo = canvasInfo
-  // console.log('boxTableData.value', boxTableData.value)
-}
+const handleImgBoxMove = (canvasInfo: any, position: any) => {
+  const { row, column } = position;
+  boxTableData.value[row][column].canvasInfo = canvasInfo;
+};
 </script>
 
 <style scoped lang="scss">
@@ -203,6 +256,15 @@ const handleImgBoxMove = (canvasInfo:any, position:any)=>{
 }
 .drag-img {
   width: 200px;
+}
+.area{
+  display: flex;
+  width: 100%;
+}
+.img-template-generate{
+  width: 300px;
+  margin-left: 30px;
+  flex: none;
 }
 .img-box-table {
   border-left: 1px solid black;
@@ -233,7 +295,7 @@ const handleImgBoxMove = (canvasInfo:any, position:any)=>{
   }
 }
 .img-box-config {
-  width: 600px;
+  width: 400px;
   margin-bottom: 20px;
   &-item {
     display: flex;
@@ -241,6 +303,9 @@ const handleImgBoxMove = (canvasInfo:any, position:any)=>{
   }
 }
 .img-operation {
+  display: flex;
+}
+.img-result-operation{
   display: flex;
 }
 </style>
