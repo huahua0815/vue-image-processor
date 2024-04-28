@@ -61,6 +61,7 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
     let scaleX = boxWidth / imgWidth;
     let scaleY = boxHeight / imgHeight;
     let scale = Math.max(scaleX, scaleY);
+    console.log('crop scale', scale)
     let imgFinalWidth = imgWidth * scale;
     let imgFinalHeight = imgHeight * scale;
 
@@ -111,9 +112,6 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
     );
    
     Object.assign(imgCurInfo.drawInfo, drawInfo)
+    console.log('in crop', imgCurInfo.drawInfo, drawInfo)
   }
-}
-
-const fillModeZoom = (zoomNum: number, imgCurInfo: ImgCurInfo)=>{
-  
 }

@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from "vue";
-import { ImgTemplateBox } from './type'
+import { ImgTemplateBox } from "@/algorithm/type";
 
 
 const props = defineProps<ImgTemplateBox>()

@@ -124,7 +124,7 @@
 import { ref, reactive, onMounted, nextTick } from "vue";
 import imgBoxCut from "./img-box-cut.vue";
 import boxTemplate from "./box-template.vue";
-import { ImgTemplateBox } from "./type";
+import { ImgTemplateBox } from "@/algorithm/type";
 import { fillModePuzzle } from "@/algorithm/puzzle.ts";
 import { Download, View } from "@element-plus/icons-vue";
 const imgList = ref([

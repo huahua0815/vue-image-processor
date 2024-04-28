@@ -11,8 +11,9 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch, onMounted, onBeforeMount } from "vue";
-import { ImageBoxCut, ImgCurInfo } from "./type";
-import { fillModeInit } from "@/algorithm/cut-algorithm.ts";
+import { ImageBoxCut, ImgCurInfo } from "@/algorithm/type";
+import { fillModeInit } from "@/algorithm/crop.ts";
+import { fillModeZoom } from "@/algorithm/zoom.ts";
 import _ from "lodash";
 
 const props = withDefaults(defineProps<ImageBoxCut>(), {
@@ -139,18 +140,20 @@ const handleDrag = (e: MouseEvent) => {
     const limitXRight = boxInfo.basis - imgCurInfo.drawInfo.canvasW;
     
     const limitYTop = 0;
-    const limitYBottom = 0;
+    const limitYBottom = boxInfo.basis * boxInfo.ratio - imgCurInfo.drawInfo.canvasH;
     // console.log('limit', limitXLeft, limitXRight)
-    if (basisX > limitXLeft) {
+    if (basisX > limitXLeft) { //到达左边界
       basisX = limitXLeft;
     }
-    if (basisX < limitXRight) {
+    if (basisX < limitXRight) { //到达右边界
       basisX = limitXRight;
     }
 
-    if (basisY != 0) {
-      basisY = 0;
+    if (basisY > limitYTop) { //到达上边界
+      basisY = limitYTop;
     }
+
+
     dragCur.basisX = basisX
     dragCur.basisy = basisY
     //移动
@@ -202,47 +205,7 @@ const handleDragEnd = () => {
 };
 
 const handleScroll = (e:WheelEvent)=>{
-  //tofix:有问题
-  const deltay = e.deltaY
-  console.log('deltay is', deltay)
-  const { width: imgWidth, height: imgHeight } = imgCurInfo.imgInfo;
-  if(deltay < 0){
-    //放大
-    let scale = Math.abs(Math.ceil(deltay / 8))
-    console.log('放大', 1 + scale)
-    let imgFinalWidth = imgWidth * (1 + scale)
-    let imgFinalHeight = imgHeight * (1 + scale)
-    imgCurInfo.canvasTempCtx?.clearRect(0, 0, imgCurInfo.canvasTemp?.width as number, imgCurInfo.canvasTemp?.height as number)
-    imgCurInfo.canvasTempCtx?.drawImage(
-      imgCurInfo.imgEle,
-      0,
-      0,
-      imgWidth,
-      imgHeight,
-      0,
-      0,
-      imgFinalWidth,
-      imgFinalHeight
-    );
-  }else{
-    //缩小
-    let scale = deltay / 100
-    console.log('缩小', 1 - scale)
-    let imgFinalWidth = imgWidth * (1 - scale)
-    let imgFinalHeight = imgHeight * (1 - scale)
-    imgCurInfo.canvasTempCtx?.clearRect(0, 0, imgCurInfo.canvasTemp?.width as number, imgCurInfo.canvasTemp?.height as number)
-    imgCurInfo.canvasTempCtx?.drawImage(
-      imgCurInfo.imgEle,
-      0,
-      0,
-      imgWidth,
-      imgHeight,
-      0,
-      0,
-      imgFinalWidth,
-      imgFinalHeight
-    );
-  }
+  fillModeZoom(e, imgCurInfo)
 }
 
 const reset = ()=>{
