@@ -15,6 +15,7 @@ export interface DrawInfo{
   canvasY:number //截取的画布的Y坐标
   canvasW:number //截取的画布的宽度
   canvasH:number  //截取的画布的高度
+  minScale:number
 } 
 
 export interface ImgInfo{

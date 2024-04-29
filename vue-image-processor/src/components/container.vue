@@ -136,6 +136,13 @@ const imgList = ref([
     id: 2,
     src: "http://image.sp.com/material/55cd76c85641ee5232e398276e1cfab1.jpg",
   },
+  {
+    id: 3,
+    src:"http://image.sp.com/material/1a65df2f3a7a13c7cb83d53e41b14f14.jpg"
+  },{
+    id:4,
+    src: "http://image.sp.com/material/b64c6acdc5bfdac258f74708eab0cc3f.jpg"
+  }
 ]);
 
 const activeTemplate = ref(0);
@@ -255,7 +262,8 @@ const handleImgBoxMove = (canvasInfo: any, position: any) => {
   height: 300px;
 }
 .drag-img {
-  width: 200px;
+  max-width: 200px;
+  max-height: 120px;
 }
 .area{
   display: flex;

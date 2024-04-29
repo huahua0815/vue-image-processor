@@ -14,6 +14,7 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
     canvasY: 0,
     canvasW: 0,
     canvasH: 0,
+    minScale: 1
   };
   const { width: imgWidth, height: imgHeight } = imgCurInfo.imgInfo;
   const { ratio: boxRatio, basis: boxWidth } = boxInfo;
@@ -30,6 +31,7 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
       canvasY: 0,
       canvasW: boxWidth,
       canvasH: boxHeight,
+      minScale: boxWidth/imgWidth
     };
     imgCurInfo.canvasCurCtx?.drawImage(
       imgCurInfo.imgEle,
@@ -74,6 +76,7 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
       canvasY: 0,
       canvasW: imgFinalWidth,
       canvasH: imgFinalHeight,
+      minScale: scale
     };
     if (imgCurInfo.canvasTemp) {
       imgCurInfo.canvasTemp.width = imgFinalWidth;

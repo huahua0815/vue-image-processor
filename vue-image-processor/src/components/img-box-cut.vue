@@ -39,6 +39,7 @@ const imgCurInfo = reactive<ImgCurInfo>({
     canvasY: 0,
     canvasW: 0,
     canvasH: 0,
+    minScale: 1,
   },
   imgInfo: {
     width: 0,
@@ -153,9 +154,12 @@ const handleDrag = (e: MouseEvent) => {
       basisY = limitYTop;
     }
 
+    if(basisY < limitYBottom){ //到达下边界
+      basisY = limitYBottom
+    }
 
     dragCur.basisX = basisX
-    dragCur.basisy = basisY
+    dragCur.basisY = basisY
     //移动
     canvasTempRef.value.style.transform = `translate(${basisX}px, ${basisY}px)`;
     // 更新裁剪位置

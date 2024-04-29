@@ -8,16 +8,17 @@ export function fillModePuzzle(tableData:any,canvasRes:HTMLCanvasElement){
   for(let i = 0;i < tableData.length; i++){
     for(let j = 0; j < tableData[i].length; j++){
       const { canvasWidth, canvasHeight } = tableData[i][j].canvasInfo
+      // console.log('in puzzle', canvasWidth, canvasHeight)
       if(i==0){
-        canvasObj.w += canvasWidth
+        canvasObj.w += Number(canvasWidth)
       }
       if(j==0){
-        canvasObj.h += canvasHeight
+        canvasObj.h += Number(canvasHeight)
       }
-      canvasRes.width = canvasObj.w
-      canvasRes.height = canvasObj.h
     }
   }
+  canvasRes.width = canvasObj.w
+  canvasRes.height = canvasObj.h
   for(let i = 0;i < tableData.length; i++){
     curCord.y = i == 0 ? 0 : lastCord.y + lastCord.h
     for(let j = 0; j < tableData[i].length; j++){
