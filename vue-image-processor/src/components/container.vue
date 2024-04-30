@@ -287,6 +287,7 @@ const handleImgBoxMove = (canvasInfo: any, position: any) => {
     background-color: #fff;
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
   }
 }
 

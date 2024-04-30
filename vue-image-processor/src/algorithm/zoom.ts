@@ -1,13 +1,16 @@
-import { ImageBoxCut, ImgCurInfo } from "./type";
+import { ImgTemplateBox, ImgCurInfo } from "./type";
 
-export function fillModeZoom(e: WheelEvent, imgCurInfo: ImgCurInfo) {
+export function fillModeZoom(e: WheelEvent, imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
   const deltay = e.deltaY;
-  const { drawInfo, canvasTemp, canvasTempCtx, imgEle, imgInfo } = imgCurInfo;
+  const { drawInfo, canvasTemp, canvasTempCtx, imgEle, imgInfo, canvasCurCtx, canvasCur } = imgCurInfo;
   const { width: imgWidth, height: imgHeight } = imgInfo;
   const { canvasW, canvasH, minScale } = drawInfo;
+  const { ratio: boxRatio, basis: boxWidth } = boxInfo;
+  const boxHeight = boxWidth * boxRatio;
+
   const preEnlargRatio = canvasW / imgWidth;
   let scroll = Math.abs(deltay / 100);
-  // console.log("滚动", scroll);
+  // console.log("滚动", scroll, preEnlargRatio, e);
   let scale = 1
   if (deltay < 0) {
     //放大
@@ -50,6 +53,7 @@ export function fillModeZoom(e: WheelEvent, imgCurInfo: ImgCurInfo) {
     //保证放大后的图片在裁剪框的相对位置与放大前保持一致，就跟scale时设置了transform-origin一样
     let topRatio = e.offsetX / canvasW;
     let leftRatio = e.offsetY / canvasH;
+    console.log('ratio in zoom', topRatio, leftRatio)
     let transX = topRatio * imgFinalWidth - e.layerX;
     let transY = leftRatio * imgFinalHeight - e.layerY;
     canvasTemp.style.transform = `translateX(${-transX}px) translateY(${-transY}px)`;
@@ -59,5 +63,19 @@ export function fillModeZoom(e: WheelEvent, imgCurInfo: ImgCurInfo) {
     imgCurInfo.drawInfo.canvasY = transY;
     imgCurInfo.drawInfo.canvasW = imgFinalWidth;
     imgCurInfo.drawInfo.canvasH = imgFinalHeight;
+
+    if(transX != 0 || transY != 0){
+      canvasCurCtx?.drawImage(
+      canvasTemp,
+      imgCurInfo.drawInfo.canvasX,
+      imgCurInfo.drawInfo.canvasY,
+        boxWidth,
+        boxHeight,
+        0,
+        0,
+        boxWidth,
+        boxHeight
+    )
   }
+}
 }

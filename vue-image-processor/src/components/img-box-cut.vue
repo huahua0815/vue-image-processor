@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<ImageBoxCut>(), {
   mode: "fill",
 });
 
-const { boxInfo } = props;
+const { boxInfo, position } = props;
 const emits = defineEmits(["ready", "move", "crop"]);
 
 const imgCurInfo = reactive<ImgCurInfo>({
@@ -89,7 +89,7 @@ const init = () => {
     },
     imgEle:img
   }
-  emits('ready', canvasInfo, props.position)
+  emits('ready', canvasInfo, position)
   };
   img.src = src;
   console.log("imgCurInfo", imgCurInfo);
@@ -178,7 +178,7 @@ const handleDragEnd = () => {
     imgCurInfo.canvasCurCtx?.drawImage(
     imgCurInfo.canvasTemp,
     imgCurInfo.drawInfo.canvasX,
-      0,
+    imgCurInfo.drawInfo.canvasY,
       boxWidth,
       boxHeight,
       0,
@@ -195,7 +195,7 @@ const handleDragEnd = () => {
       y:imgCurInfo.drawInfo.canvasY
     }
   }
-  emits('move', canvasInfo, props.position)
+  emits('move', canvasInfo, position)
 }
   Object.assign(dragCur, {
     startX: 0,
@@ -209,7 +209,7 @@ const handleDragEnd = () => {
 };
 
 const handleScroll = (e:WheelEvent)=>{
-  fillModeZoom(e, imgCurInfo)
+  fillModeZoom(e, imgCurInfo, boxInfo)
 }
 
 const reset = ()=>{
@@ -233,5 +233,6 @@ onBeforeMount(() => {
 <style scoped lang="scss">
 .canvas-temp {
   // transition: 0.1s transform ease;
+  // position: relative;
 }
 </style>../algorithm/cut-algorithm
