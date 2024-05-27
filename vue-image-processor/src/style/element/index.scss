@@ -1,0 +1,13 @@
+$--colors: (
+  "primary": (
+    "base": #5236f2,
+  ),
+);
+
+@forward "element-plus/theme-chalk/src/common/var.scss" with
+  (
+    $colors: $--colors,
+    $date-editor:("daterange-width": 260px,),
+  );
+@use "element-plus/theme-chalk/src/index.scss" as *;
+

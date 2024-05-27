@@ -20,6 +20,11 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
   const { ratio: boxRatio, basis: boxWidth } = boxInfo;
   const imgRatio = imgHeight / imgWidth;
   const boxHeight = boxWidth * boxRatio;
+  
+  (imgCurInfo.canvasCur as HTMLCanvasElement).width = boxWidth;
+  (imgCurInfo.canvasCur as HTMLCanvasElement).height = boxHeight;
+  (imgCurInfo.canvasTemp as HTMLCanvasElement).width = boxWidth;
+  (imgCurInfo.canvasTemp as HTMLCanvasElement).height = boxHeight;
   if (isPrecisionEqual(imgRatio, boxRatio, 0.05)) {
     //比例相同，图片只需要缩放，图片内容可以全部填充
     drawInfo = {
@@ -31,7 +36,8 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
       canvasY: 0,
       canvasW: boxWidth,
       canvasH: boxHeight,
-      minScale: boxWidth/imgWidth
+      minScale: boxWidth/imgWidth,
+      curScale: boxWidth/imgWidth
     };
     imgCurInfo.canvasCurCtx?.drawImage(
       imgCurInfo.imgEle,
@@ -63,7 +69,7 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
     let scaleX = boxWidth / imgWidth;
     let scaleY = boxHeight / imgHeight;
     let scale = Math.max(scaleX, scaleY);
-    console.log('crop scale', scale)
+    // console.log('crop scale', scale)
     let imgFinalWidth = imgWidth * scale;
     let imgFinalHeight = imgHeight * scale;
 
@@ -76,7 +82,8 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
       canvasY: 0,
       canvasW: imgFinalWidth,
       canvasH: imgFinalHeight,
-      minScale: scale
+      minScale: scale,
+      curScale: scale
     };
     if (imgCurInfo.canvasTemp) {
       imgCurInfo.canvasTemp.width = imgFinalWidth;
@@ -113,8 +120,6 @@ export function fillModeInit(imgCurInfo: ImgCurInfo, boxInfo: ImgTemplateBox) {
       boxWidth,
       boxHeight
     );
-   
     Object.assign(imgCurInfo.drawInfo, drawInfo)
-    console.log('in crop', imgCurInfo.drawInfo, drawInfo)
   }
 }
