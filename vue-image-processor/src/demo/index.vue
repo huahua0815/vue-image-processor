@@ -121,7 +121,7 @@ const handleOpenAddPic = () => {
 
     &-content {
       display: flex;
-      width: 212px;
+      width: 226px;
       flex-wrap: wrap;
       max-width: 100%;
       padding: 8px;

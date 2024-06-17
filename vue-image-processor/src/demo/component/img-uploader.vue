@@ -15,6 +15,9 @@
       <img-choose-tool v-for="(item,index) in imgUploadArr" :key="item.originImgUrl" :src="item.originImgUrl" :width="100" :number="item.number"
         :height="80" @click="handleOrder(index)"/>
     </div>
+    <div class="select-operation">
+      
+    </div>
   </div>
 </template>
 
